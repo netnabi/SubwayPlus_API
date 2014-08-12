@@ -6,3 +6,5 @@ Account : netnabi
 
 TEST-CALL : http://openapi.seoul.go.kr:8088/sample/xml/SearchInfoBySubwayNameService/1/5/명동/
 RESULT : 1 INFO-000 정상 처리되었습니다 0424 명동 4 424
+
+test....
