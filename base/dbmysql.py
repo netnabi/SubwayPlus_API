@@ -12,7 +12,7 @@ import bo
 #
 
 # List of database
-_DB_NAME_API_DATA_SUBWAY = {"host":"localhost", "db":"apidata_subway","user":"subway","passwd":"subway"}
+_DB_NAME_API_DATA_SUBWAY = {"host":"localhost", "db":"apidata_subway","user":"subway","passwd":"subwa"}
 
 
 class DbManager(bo.BaseObject):
