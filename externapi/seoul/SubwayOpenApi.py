@@ -45,8 +45,26 @@ class SB_API_PARAM:
         SUIN       = {K_DESC:"수인선",K_KEY:"SU"}
 
         @staticmethod
-        def get_all_lines():
-            return [ \
+        def get_all_line_nums():
+            return [
+                SB_API_PARAM.LINE_NUM.LINE_1,
+                SB_API_PARAM.LINE_NUM.LINE_2,
+                SB_API_PARAM.LINE_NUM.LINE_3,
+                SB_API_PARAM.LINE_NUM.LINE_4,
+                SB_API_PARAM.LINE_NUM.LINE_5,
+                SB_API_PARAM.LINE_NUM.LINE_6,
+                SB_API_PARAM.LINE_NUM.LINE_7,
+                SB_API_PARAM.LINE_NUM.LINE_8,
+                SB_API_PARAM.LINE_NUM.LINE_9,
+
+                SB_API_PARAM.LINE_NUM.INCHEON_1,
+                SB_API_PARAM.LINE_NUM.GYEONGUI,
+                SB_API_PARAM.LINE_NUM.BUNDANG,
+                SB_API_PARAM.LINE_NUM.JUNGANG,
+                SB_API_PARAM.LINE_NUM.GONGHANG,
+                SB_API_PARAM.LINE_NUM.GYEONGCHUN,
+                SB_API_PARAM.LINE_NUM.SINBUNDANG,
+                SB_API_PARAM.LINE_NUM.SUIN,
             ]
 
 

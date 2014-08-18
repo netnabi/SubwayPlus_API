@@ -30,7 +30,7 @@ def get_logger(log_name):
                  _LOG_FILENAME, maxBytes=(10*1024*1024*1024), backupCount=5)
 
    # Format : 2005-03-19 15:10:26,618 - simple_example - DEBUG - debug message
-   _formatter = logging.Formatter("%(asctime)s - %(name)15s - %(levelname)-05s - %(message)s")
+   _formatter = logging.Formatter("%(asctime)s, %(name)-20s, %(levelname)-07s, %(message)s")
    _handler.setFormatter(_formatter)
    _LOGGER.addHandler(_handler)
 
