@@ -22,6 +22,28 @@ class SB_API_PARAM:
         IN      = {K_DESC:"내선", K_KEY:"1"}
         OUT     = {K_DESC:"외선", K_KEY:"2"}
 
+        @staticmethod
+        def list():
+            return [
+                SB_API_PARAM.INOUT_TAG.UP,
+                SB_API_PARAM.INOUT_TAG.DOWN,
+            ]
+
+    # 요일 : 평일:1, 토요일:2, 휴일/일요일:3
+    class WEEK_TAG:
+        def __init__(self):
+            return
+        BUSINESS_DAY    = {K_DESC:"평일", K_KEY:"1"}
+        SAT_DAY         = {K_DESC:"토요일", K_KEY:"2"}
+        SUN_DAY         = {K_DESC:"휴일/일요일", K_KEY:"3"}
+
+        @staticmethod
+        def list():
+            return [
+                SB_API_PARAM.WEEK_TAG.BUSINESS_DAY,
+                SB_API_PARAM.WEEK_TAG.SAT_DAY,
+                SB_API_PARAM.WEEK_TAG.SUN_DAY,
+            ]
     class LINE_NUM:
         def __init__(self):
             return
@@ -45,7 +67,7 @@ class SB_API_PARAM:
         SUIN       = {K_DESC:"수인선",K_KEY:"SU"}
 
         @staticmethod
-        def get_all_line_nums():
+        def list():
             return [
                 SB_API_PARAM.LINE_NUM.LINE_1,
                 SB_API_PARAM.LINE_NUM.LINE_2,
@@ -74,12 +96,14 @@ class SB_SERVICE:
 
     SVC_SEARCHSTNBYSUBWAYLINESERVICE                = "SearchSTNBySubwayLineService"
     SVC_SEARCHARRIVALTIMEOFLINE2SUBWAYBYIDSERVICE   = "SearchArrivalTimeOfLine2SubwayByIDService"
+    SVC_SEARCHSTNTIMETABLEBYIDSERVICE               = "SearchSTNTimeTableByIDService"
 
     # SB_SERVICE["ServiceCmd(orName)"] return SVC_CODE
     CMD = \
     {
         SVC_SEARCHSTNBYSUBWAYLINESERVICE:001,
         SVC_SEARCHARRIVALTIMEOFLINE2SUBWAYBYIDSERVICE:002,
+        SVC_SEARCHSTNTIMETABLEBYIDSERVICE:003,
     }
     NAME = CMD # For Aliase
 
@@ -130,6 +154,31 @@ class Req_SEARCH_STATION_BY_SUBWAYLINE:
             str(self.END_INDEX)  + URI_N +\
             self.LINE_NUM
 
+# Service-Subject : 역코드로 지하철역별 열차 시간표 정보 검색
+# Service-Desc : 역코드로 지하철역별 열차 시간표 정보를 검색할 수 있도록 하는 API입니다.
+class Req_SEARCH_STATION_TIMETABLE_BY_ID:
+    SVC_CMD = SB_SERVICE.SVC_SEARCHSTNTIMETABLEBYIDSERVICE
+    SVC_CODE = SB_SERVICE.CMD[SVC_CMD]
+    START_INDEX = 0; END_INDEX = 0
+    STATION_CD  = None
+    INOUT_TAG   = SB_API_PARAM.INOUT_TAG.IN[K_KEY]
+    WEEK_TAG    = SB_API_PARAM.WEEK_TAG.BUSINESS_DAY[K_KEY]
+
+    def __init__(self):
+        return
+    def get_service_name(self):
+        return self.SVC_CMD
+
+    # Format : SearchSTNTimeTableByIDService/1/5/1701/1/1/
+    def encodeURI(self):
+        return \
+            self.SVC_CMD         + URI_N +\
+            str(self.START_INDEX)+ URI_N +\
+            str(self.END_INDEX)  + URI_N +\
+            self.STATION_CD      + URI_N +\
+            str(self.WEEK_TAG)   + URI_N +\
+            str(self.INOUT_TAG)
+
 
 # Subway Service Request Maker.
 class SB_API_RequestMaker:
@@ -143,6 +192,8 @@ class SB_API_RequestMaker:
             return Req_SEARCH_STATION_BY_SUBWAYLINE()
         if svc_nm == SB_SERVICE.SVC_SEARCHARRIVALTIMEOFLINE2SUBWAYBYIDSERVICE :
             return Req_SEARCH_ARRIVAL_TIME_OF_LINE2SUBWAY_BYID()
+        if svc_nm == SB_SERVICE.SVC_SEARCHSTNTIMETABLEBYIDSERVICE :
+            return Req_SEARCH_STATION_TIMETABLE_BY_ID()
 
 
 
