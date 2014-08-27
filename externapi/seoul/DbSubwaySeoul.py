@@ -2,12 +2,10 @@ __author__ = 'yjkim'
 # -*- coding: UTF-8 -*-
 
 from base import logger, baseutil
-
+import pymysql as mdb
 from base.bo import BoException
 import unittest
 from base.dbmysql import DbManager
-import mysql.connector as mdb
-from mysql.connector import errorcode
 from externapi.seoul.SubwayOpenApi import *
 
 
@@ -54,7 +52,7 @@ _TABLES[SB_SERVICE.SVC_SEARCHSTNBYSUBWAYLINESERVICE +_CUR] = (
 
 
 # TODO : Not Used Now. need Fix.
-_TABLES[SB_SERVICE.SVC_SEARCHARRIVALTIMEOFLINE2SUBWAYBYIDSERVICE] = ()
+# _TABLES[SB_SERVICE.SVC_SEARCHARRIVALTIMEOFLINE2SUBWAYBYIDSERVICE] = ()
 
 
 # DML Tools
@@ -100,10 +98,7 @@ class DbSeoulSubway:
                 _log.info("Creating table {}: ".format(name))
                 cursor.execute(ddl)
             except mdb.Error as err:
-                if err.errno == errorcode.ER_TABLE_EXISTS_ERROR:
-                    _log.warn("Table {} is already exists.".format(name))
-                else:
-                    _log.error(err)
+                _log.error(err)
             else:
                 _log.info("Table Created success. {}".format(name))
 

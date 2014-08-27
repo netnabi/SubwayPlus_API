@@ -2,7 +2,7 @@
 <module type="PYTHON_MODULE" version="4">
   <component name="NewModuleRootManager">
     <content url="file://$MODULE_DIR$" />
-    <orderEntry type="jdk" jdkName="Python 2.7.5 virtualenv at ~/webapps/subwayplus/subwayplus_api" jdkType="Python SDK" />
+    <orderEntry type="jdk" jdkName="Python 2.7.8 virtualenv at C:\Users\aj\subwayplus_importer" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
   </component>
 </module>

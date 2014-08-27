@@ -2,8 +2,7 @@ __author__ = 'yjkim'
 # -*- coding: UTF-8 -*-
 
 import unittest
-import mysql.connector as mdb
-from mysql.connector import errorcode
+import pymysql as mdb
 import bo
 import logger
 import baseutil
@@ -18,7 +17,14 @@ _log = logger.get_logger(baseutil.get_filename(__file__))
 #
 
 # List of database
-_DB_NAME_API_DATA_SUBWAY = {"host":"localhost", "db":"apidata_subway","user":"subway","passwd":"subway"}
+_DB_NAME_API_DATA_SUBWAY = {
+    "host":"localhost",
+    "port":3306,
+    "db":"apidata_subway",
+    "user":"subway",
+    "passwd":"subway",
+    "charset":"utf8"
+}
 
 
 class DbManager(bo.BaseObject):
@@ -28,14 +34,14 @@ class DbManager(bo.BaseObject):
     def get_connection_apidata_subway(self):
         try:
             db = _DB_NAME_API_DATA_SUBWAY
-            con = mdb.connect(host=db["host"], database=db["db"], user=db["user"], password=db["passwd"])
+            con = mdb.connect(host=db["host"],
+                              port=db["port"],
+                              db=db["db"],
+                              user=db["user"],
+                              passwd=db["passwd"],
+                              charset=db["charset"])
         except mdb.Error as _err:
-            if _err.errno == errorcode.ER_ACCESS_DENIED_CHANGE_USER_ERROR:
-                _log.error("Something is wrong with your user name or password")
-            elif _err.errno == errorcode.ER_BAD_DB_ERROR:
-                _log.error("Database does not exists")
-            else:
-                _log.error(_err)
+            _log.error(_err)
             return None
         else:
             _log.info("database connected ='%s'", db["db"])
