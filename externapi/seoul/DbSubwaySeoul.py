@@ -164,6 +164,22 @@ class DbSeoulSubway:
             self._tempConn.commit()
         self._tempConn.close()
 
+    # Truncate Tables of service
+    def tables_truncate(self, svc_name):
+
+        tb_name = _make_apidata_table_name(svc_name, True)
+
+        if self._tempConn is None:
+            raise DbSeoulSubwayException("Need call open_api_service_connection(), first")
+
+        cursor = self._tempConn.cursor()
+        try:
+            _DML_ =  (" TRUNCATE `{}` ".format(tb_name))
+            cursor.execute(_DML_, {})
+        except mdb.Error as err:
+            _log.warn("MySQL Table Truncate Failed: {}, {}"
+                      .format(err, DbSeoulSubway.import_api_service_data.func_code) )
+        cursor.close()
 
     # Service 별로 데이타를 INSERT 한다.
     def import_api_service_data(self, svc_name, rows):
@@ -220,8 +236,35 @@ class DbSeoulSubway:
                       .format(err, DbSeoulSubway.import_api_service_data.func_code) )
 
         cursor.close()
+        self._tempConn.commit()
 
 
+    # 모든 지하철역 코드를 반환한다.
+    def get_all_staticon_code(self):
+        if self._tempConn is None:
+            raise DbSeoulSubwayException("Need call open_api_service_connection(), first")
+
+        cursor = self._tempConn.cursor()
+
+        try:
+            _DML_SELECT_ =  (
+                " SELECT STATION_CD FROM `{}`"
+                .format(_make_apidata_table_name(SB_SERVICE.SVC_SEARCHSTNBYSUBWAYLINESERVICE, True)) )
+
+            cursor.execute(_DML_SELECT_, {})
+            rows = cursor.fetchall()
+            outlist = []
+            for row in rows:
+                s_cd = row[0]
+                outlist.append(s_cd)
+                _log.debug(" SELECT STATION_CD : {}".format(s_cd))
+
+        except mdb.Error as err:
+            _log.warn("MySQL Data Insert Failed: {}, {}"
+                      .format(err, DbSeoulSubway.import_api_service_data.func_code) )
+
+        cursor.close()
+        return outlist;
 
 # Test Class : DbSeoulSubway
 #

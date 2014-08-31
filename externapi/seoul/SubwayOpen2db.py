@@ -23,6 +23,7 @@ class OpenServiceDataImporter:
 #
 class OpenServiceDataImporterTest(unittest.TestCase):
 
+    # Running Time in 24 min.
     def test_req_service_searchStationTimeTableByIdService(self):
         imp = OpenServiceDataImporter()
         result = imp.searchStationTimeTableByIdService()

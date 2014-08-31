@@ -1,10 +1,11 @@
 __author__ = 'benjamin kim'
 # -*- coding: UTF-8 -*-
 
-import urllib
+from base import logger, baseutil
 import json
-
 from base import bo
+
+_log = logger.get_logger(baseutil.get_filename(__file__))
 
 API_RESPONSE_CODE_SUC = 1
 API_RESPONSE_CODE_EMPTY = 0
@@ -65,9 +66,12 @@ class SeoulApiPacketRes(bo.BaseObject):
     def parse(self, response, svc_name):
         self.status = response.status
         self.reason = response.reason
-        self.svc_name = svc_name
-        _raw_data = response.read()
-        self._parse(_raw_data)
+        if self.status == 200:
+            self.svc_name = svc_name
+            _raw_data = response.read()
+            self._parse(_raw_data)
+        else:
+            _log.warn(" REST-SERVICE Failed: {},{},{}".format(svc_name, self.status, self.reason))
         return
 
     """
@@ -92,16 +96,40 @@ class SeoulApiPacketRes(bo.BaseObject):
         }]
     }
     }
+
+    OR
+
+    {"RESULT":{"CODE":"ERROR-300","MESSAGE":"필수 값이 누락되어 있습니다.\\n요청인자를 참고 하십시오."}}
     """
     def _parse(self, raw_data):
-        js_obj = json.loads(raw_data)
-        svc_dt = js_obj[self.svc_name]
-        result_dt = svc_dt[_DATA_KEY.API_RESULT]
 
-        self.list_total_count   = svc_dt[_DATA_KEY.LIST_TOTAL_COUNT]
-        self.result_code_raw    = result_dt[_DATA_KEY.API_RESULT_CODE]
-        self.result_code        = API_RESPONSE_CODE[self.result_code_raw]
-        self.result_msg         = result_dt[_DATA_KEY.API_RESULT_MSG]
-        self.row                = svc_dt[_DATA_KEY.API_RESULT_ROW]
+        js_obj = json.loads(raw_data)
+        _log.debug(" RESPONSE DUMP : {}".format(js_obj))
+
+        self.row=[]
+        self.list_total_count=0
+        self.result_code=API_RESPONSE_CODE_EMPTY
+
+        if _DATA_KEY.API_RESULT in js_obj.keys():
+            result_dt = js_obj[_DATA_KEY.API_RESULT]
+            self.result_code_raw    = result_dt[_DATA_KEY.API_RESULT_CODE]
+            self.result_code        = API_RESPONSE_CODE[self.result_code_raw]
+            self.result_msg         = result_dt[_DATA_KEY.API_RESULT_MSG]
+
+        if self.svc_name in js_obj.keys():
+            svc_dt = js_obj[self.svc_name]
+            self.list_total_count   = svc_dt[_DATA_KEY.LIST_TOTAL_COUNT]
+            self.row                = svc_dt[_DATA_KEY.API_RESULT_ROW]
+
+            if _DATA_KEY.API_RESULT in js_obj.keys():
+                result_dt = svc_dt[_DATA_KEY.API_RESULT]
+                self.result_code_raw    = result_dt[_DATA_KEY.API_RESULT_CODE]
+                self.result_code        = API_RESPONSE_CODE[self.result_code_raw]
+                self.result_msg         = result_dt[_DATA_KEY.API_RESULT_MSG]
+
+        if self.result_code != API_RESPONSE_CODE_SUC:
+            _log.info(" RESULT IS WARN or ERR : "+self.result_code_raw)
+            return
+
 
         return

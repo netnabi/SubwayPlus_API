@@ -17,13 +17,15 @@ def importStart():
         raise OpenServiceDataImporterException("Can't not Open Database Connection")
 
     svc_nm = SB_SERVICE.SVC_SEARCHSTNTIMETABLEBYIDSERVICE
+    dss.tables_truncate(svc_nm)
 
     inouts      = SB_API_PARAM.INOUT_TAG.list()
     weeks       = SB_API_PARAM.WEEK_TAG.list()
-    stations    = ['0150', '0151']
-    for inout in inouts:
-        for week in weeks:
-            for std in stations:
+    stations    = dss.get_all_staticon_code()
+
+    for std in stations:
+        for inout in inouts:
+            for week in weeks:
                 sub_result = _importSpecific(dss, svc_nm, std, week, inout)
                 if sub_result is False:
                     raise OpenServiceDataImporterException("SVC_SEARCHSTNTIMETABLEBYIDSERVICE ImportFailed...")
@@ -46,7 +48,7 @@ def _importSpecific(dss, svc_nm, STATION_ID_, WEEK_, INOUT_):
 
 
 def _Save2Db(svc_nm, req_loop, dss):
-    _REQ_DATA_SIZE = 100
+    _REQ_DATA_SIZE = 1000
     while True :
         req_loop.START_INDEX = (req_loop.END_INDEX + 1)
         req_loop.END_INDEX = req_loop.START_INDEX + (_REQ_DATA_SIZE-1)
@@ -62,6 +64,8 @@ def _Save2Db(svc_nm, req_loop, dss):
         # Last phase
         if req_loop.END_INDEX+1 >= totalcnt:
             return
+
+
 
 if __name__ == "__main__":
     unittest.main()

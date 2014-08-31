@@ -1,6 +1,7 @@
 __author__ = 'aj'
 # -*- coding: UTF-8 -*-
 
+from base import logger, baseutil
 import httplib
 from externapi.seoul.BasePacket import SeoulApiPacketRes
 
@@ -8,6 +9,7 @@ URI_N = "/"
 K_DESC = "desc"
 K_KEY = "key"
 
+_log = logger.get_logger(baseutil.get_filename(__file__))
 
 # Service params specification
 class SB_API_PARAM:
@@ -214,7 +216,9 @@ class SbOpenApi:
     def getServiceData(service_):
         uri = service_.encodeURI()
         conn = httplib.HTTPConnection(SbOpenApi.API_HOST)
-        conn.request("GET", SbOpenApi.MAKE_URI(uri))
+        req_uri = SbOpenApi.MAKE_URI(uri)
+        _log.debug(" REQUEST DUMP : {}".format(req_uri))
+        conn.request("GET", req_uri)
         resp = conn.getresponse()
         print resp.status, resp.reason
 

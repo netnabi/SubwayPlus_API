@@ -29,7 +29,7 @@ def importStart():
 
 # 지하철라인별로 REST 서비스를 요청한다.
 def _Save2Db(svc_nm, req_loop, dss):
-    _REQ_DATA_SIZE = 100
+    _REQ_DATA_SIZE = 1000
     while True :
         req_loop.START_INDEX = (req_loop.END_INDEX + 1)
         req_loop.END_INDEX = req_loop.START_INDEX + (_REQ_DATA_SIZE-1)
