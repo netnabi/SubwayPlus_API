@@ -5,6 +5,7 @@ __author__ = 'yjkim'
 import unittest
 from imports import import_SeachStationBySubwayLineService
 from imports import import_SearchStationTimeTableByIdService
+from imports import import_SearchViaStationArrivalTimeByTrainService
 
 
 # Class : 해당 서비스에 대한 임포트를 요청하면, OpenAPI Call을 이용하여 DB 에 저장한다.
@@ -17,13 +18,21 @@ class OpenServiceDataImporter:
         return import_SeachStationBySubwayLineService.importStart()
     def searchStationTimeTableByIdService(self):
         return import_SearchStationTimeTableByIdService.importStart()
+    def searchViaStationArrivalTimeByTrainService(selfs):
+        return import_SearchViaStationArrivalTimeByTrainService.importStart()
 
 
 # Test Class : OpenServiceDataImporter 를 테스트한다.
 #
 class OpenServiceDataImporterTest(unittest.TestCase):
 
+    def test_req_searchViaStationArrivalTimeByTrainService(self):
+        imp = OpenServiceDataImporter()
+        result = imp.searchViaStationArrivalTimeByTrainService()
+        self.assertEqual(result, True)
+
     # Running Time in 24 min.
+    @unittest.skip("testing skipping")
     def test_req_service_searchStationTimeTableByIdService(self):
         imp = OpenServiceDataImporter()
         result = imp.searchStationTimeTableByIdService()

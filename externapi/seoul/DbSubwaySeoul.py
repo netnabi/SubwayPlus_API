@@ -64,7 +64,17 @@ _DDL_SVC_SEARCHSTNTIMETABLEBYIDSERVICE = (
 
     " ) ENGINE=InnoDB DEFAULT CHARSET=utf8; ")
 
-
+_DDL_SVC_SEARCHVIASTNARRIVALTIMEBYTRAINSERVICE = (
+    " CREATE TABLE `{}` (  "
+    "   `TRAIN_NO` char(10) NOT NULL COMMENT 'Train No',  "
+    "   `STATION_CD` char(6) NOT NULL COMMENT 'Unique Station Code',  "
+    "   `FR_CODE` char(6) DEFAULT NULL COMMENT 'USC for Foreign (Alias)',  "
+    "   `STATION_NM` char(60) DEFAULT NULL COMMENT 'Subway Station Name',  "
+    "   `SUBWAYENAME` char(60) DEFAULT NULL COMMENT 'Subway Dest Station Name',  "
+    "   `ARRIVETIME` char(8) DEFAULT NULL COMMENT 'Train ArriveTime',  "
+    "   `WEEK_TAG` char(2) DEFAULT NULL COMMENT 'Weeks Codes',  "
+    "   `INOUT_TAG` char(2) DEFAULT NULL COMMENT 'Arrow INOUT'  "
+    " ) ENGINE=MyISAM DEFAULT CHARSET=utf8; ")
 
 
 _TABLES = {}
@@ -85,9 +95,14 @@ _TABLES[SB_SERVICE.SVC_SEARCHSTNTIMETABLEBYIDSERVICE +_CUR] = (
     _DDL_SVC_SEARCHSTNTIMETABLEBYIDSERVICE
     .format(_make_apidata_table_name(SB_SERVICE.SVC_SEARCHSTNTIMETABLEBYIDSERVICE, False)) )
 
+# ## _DDL_SVC_SEARCHVIASTNARRIVALTIMEBYTRAINSERVICE
+_TABLES[SB_SERVICE.SVC_SEARCHVIASTNARRIVALTIMEBYTRAINSERVICE +_NEW] = (
+    _DDL_SVC_SEARCHVIASTNARRIVALTIMEBYTRAINSERVICE
+    .format(_make_apidata_table_name(SB_SERVICE.SVC_SEARCHVIASTNARRIVALTIMEBYTRAINSERVICE, True)) )
+_TABLES[SB_SERVICE.SVC_SEARCHVIASTNARRIVALTIMEBYTRAINSERVICE +_CUR] = (
+    _DDL_SVC_SEARCHVIASTNARRIVALTIMEBYTRAINSERVICE
+    .format(_make_apidata_table_name(SB_SERVICE.SVC_SEARCHVIASTNARRIVALTIMEBYTRAINSERVICE, False)) )
 
-# TODO : Not Used Now. need Fix.
-# _TABLES[SB_SERVICE.SVC_SEARCHARRIVALTIMEOFLINE2SUBWAYBYIDSERVICE] = ()
 
 
 # DML Tools
@@ -108,6 +123,12 @@ _DML_INSERT_[SB_SERVICE.SVC_SEARCHSTNTIMETABLEBYIDSERVICE] = (
     " ( %(LINE_NUM)s,%(FR_CODE)s,%(STATION_CD)s,%(STATION_NM)s,%(TRAIN_NO)s,%(ARRIVETIME)s,%(LEFTTIME)s,%(ORIGINSTATION)s,%(DESTSTATION)s,%(SUBWAYSNAME)s,%(SUBWAYENAME)s,%(WEEK_TAG)s,%(INOUT_TAG)s,%(FL_FLAG)s,%(DESTSTATION2)s,%(EXPRESS_YN)s,%(BRANCH_LINE)s );  "
     .format(_make_apidata_table_name(SB_SERVICE.SVC_SEARCHSTNTIMETABLEBYIDSERVICE, True)) )
 
+_DML_INSERT_[SB_SERVICE.SVC_SEARCHVIASTNARRIVALTIMEBYTRAINSERVICE] = (
+    " INSERT INTO `{}` "
+    " (`TRAIN_NO`, `STATION_CD`, `FR_CODE`,`STATION_NM`, `SUBWAYENAME`, `ARRIVETIME`, `WEEK_TAG`,`INOUT_TAG`) "
+    " VALUES  "
+    " ( %(TRAIN_NO)s,%(STATION_CD)s,%(FR_CODE)s,%(STATION_NM)s,%(SUBWAYENAME)s,%(ARRIVETIME)s,%(WEEK_TAG)s,%(INOUT_TAG)s );  "
+    .format(_make_apidata_table_name(SB_SERVICE.SVC_SEARCHVIASTNARRIVALTIMEBYTRAINSERVICE, True)) )
 
 
 
@@ -229,6 +250,19 @@ class DbSeoulSubway:
                     }
                     _log.debug(_DML_INSERT_[svc_name], param)
                     cursor.execute(_DML_INSERT_[svc_name], param)
+                elif svc_name == SB_SERVICE.SVC_SEARCHVIASTNARRIVALTIMEBYTRAINSERVICE:
+                    param = {
+                        'TRAIN_NO'  : x["TRAIN_NO"],              # 열차번호
+                        'STATION_CD': x["STATION_CD"],            # 전철역코드
+                        'FR_CODE':    x["FR_CODE"],               # 외부코드
+                        'STATION_NM': x["STATION_NM"],            # 전철역명
+                        'SUBWAYENAME'     : x["SUBWAYENAME"],     # 도착지하철역명
+                        'ARRIVETIME'      : x["ARRIVETIME"],      # 도착시간
+                        'WEEK_TAG'        : x["WEEK_TAG"],        # 요일
+                        'INOUT_TAG'       : x["INOUT_TAG"],       # 상/하행선
+                    }
+                    _log.debug(_DML_INSERT_[svc_name], param)
+                    cursor.execute(_DML_INSERT_[svc_name], param)
                 else:
                     raise DbSeoulSubwayException("This Service is undefined.", svc_name)
         except mdb.Error as err:
@@ -248,7 +282,7 @@ class DbSeoulSubway:
 
         try:
             _DML_SELECT_ =  (
-                " SELECT STATION_CD FROM `{}`"
+                " SELECT STATION_CD FROM `{}` ORDER BY STATION_CD "
                 .format(_make_apidata_table_name(SB_SERVICE.SVC_SEARCHSTNBYSUBWAYLINESERVICE, True)) )
 
             cursor.execute(_DML_SELECT_, {})
@@ -258,6 +292,33 @@ class DbSeoulSubway:
                 s_cd = row[0]
                 outlist.append(s_cd)
                 _log.debug(" SELECT STATION_CD : {}".format(s_cd))
+
+        except mdb.Error as err:
+            _log.warn("MySQL Data Insert Failed: {}, {}"
+                      .format(err, DbSeoulSubway.import_api_service_data.func_code) )
+
+        cursor.close()
+        return outlist;
+
+    # 모든 TRAIN_NO를 반환한다.
+    def get_all_train_no(self):
+        if self._tempConn is None:
+            raise DbSeoulSubwayException("Need call open_api_service_connection(), first")
+
+        cursor = self._tempConn.cursor()
+
+        try:
+            _DML_SELECT_ =  (
+                " SELECT DISTINCT TRAIN_NO FROM `{}` ORDER BY TRAIN_NO "
+                .format(_make_apidata_table_name(SB_SERVICE.SVC_SEARCHSTNTIMETABLEBYIDSERVICE, True)) )
+
+            cursor.execute(_DML_SELECT_, {})
+            rows = cursor.fetchall()
+            outlist = []
+            for row in rows:
+                s_cd = row[0]
+                outlist.append(s_cd)
+                _log.debug(" SELECT DISTINCT TRAIN_NO : {}".format(s_cd))
 
         except mdb.Error as err:
             _log.warn("MySQL Data Insert Failed: {}, {}"

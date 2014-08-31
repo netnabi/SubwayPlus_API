@@ -99,6 +99,7 @@ class SB_SERVICE:
     SVC_SEARCHSTNBYSUBWAYLINESERVICE                = "SearchSTNBySubwayLineService"
     SVC_SEARCHARRIVALTIMEOFLINE2SUBWAYBYIDSERVICE   = "SearchArrivalTimeOfLine2SubwayByIDService"
     SVC_SEARCHSTNTIMETABLEBYIDSERVICE               = "SearchSTNTimeTableByIDService"
+    SVC_SEARCHVIASTNARRIVALTIMEBYTRAINSERVICE       = "SearchViaSTNArrivalTimeByTrainService"
 
     # SB_SERVICE["ServiceCmd(orName)"] return SVC_CODE
     CMD = \
@@ -106,6 +107,7 @@ class SB_SERVICE:
         SVC_SEARCHSTNBYSUBWAYLINESERVICE:001,
         SVC_SEARCHARRIVALTIMEOFLINE2SUBWAYBYIDSERVICE:002,
         SVC_SEARCHSTNTIMETABLEBYIDSERVICE:003,
+        SVC_SEARCHVIASTNARRIVALTIMEBYTRAINSERVICE:004,
     }
     NAME = CMD # For Aliase
 
@@ -181,6 +183,30 @@ class Req_SEARCH_STATION_TIMETABLE_BY_ID:
             str(self.WEEK_TAG)   + URI_N +\
             str(self.INOUT_TAG)
 
+# Service-Subject : 열차별 경유 지하철역 도착시간 정보 검색
+# Service-Desc : 열차별 경유 지하철역 도착시간 정보를 검색할 수 있도록 하는 API입니다.
+class Req_SEARCH_VIA_STATION_ARRIVALTIME_BY_TRAIN:
+    SVC_CMD = SB_SERVICE.SVC_SEARCHVIASTNARRIVALTIMEBYTRAINSERVICE
+    SVC_CODE = SB_SERVICE.CMD[SVC_CMD]
+    START_INDEX = 0; END_INDEX = 0
+    TRAIN_NO    = None
+    INOUT_TAG   = SB_API_PARAM.INOUT_TAG.IN[K_KEY]
+    WEEK_TAG    = SB_API_PARAM.WEEK_TAG.BUSINESS_DAY[K_KEY]
+
+    def __init__(self):
+        return
+    def get_service_name(self):
+        return self.SVC_CMD
+
+    # Format : SearchViaSTNArrivalTimeByTrainService/1/5/K802/1/1
+    def encodeURI(self):
+        return \
+            self.SVC_CMD         + URI_N +\
+            str(self.START_INDEX)+ URI_N +\
+            str(self.END_INDEX)  + URI_N +\
+            self.TRAIN_NO      + URI_N +\
+            str(self.WEEK_TAG)   + URI_N +\
+            str(self.INOUT_TAG)
 
 # Subway Service Request Maker.
 class SB_API_RequestMaker:
@@ -196,6 +222,8 @@ class SB_API_RequestMaker:
             return Req_SEARCH_ARRIVAL_TIME_OF_LINE2SUBWAY_BYID()
         if svc_nm == SB_SERVICE.SVC_SEARCHSTNTIMETABLEBYIDSERVICE :
             return Req_SEARCH_STATION_TIMETABLE_BY_ID()
+        if svc_nm == SB_SERVICE.SVC_SEARCHVIASTNARRIVALTIMEBYTRAINSERVICE :
+            return Req_SEARCH_VIA_STATION_ARRIVALTIME_BY_TRAIN()
 
 
 
